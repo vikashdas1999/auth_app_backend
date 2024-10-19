@@ -32,18 +32,36 @@ router.get('/quizzes', ensureAuthenticated, async (req, res) => {
 
 
 // Get a quiz question by ID
-router.get('/quizzes/:id', ensureAuthenticated, async (req, res) => {
+// router.get('/quizzes/:quiz_by', ensureAuthenticated, async (req, res) => {
+//     try {
+//         const { quiz_by } = req.params;
+//         console.log(quiz_by,'ID')
+//         const quiz = await Quiz.findById(quiz_by);
+//         if (!quiz) {
+//             return res.status(404).json({ error: 'Quiz not found' });
+//         }
+//         res.status(200).send(quiz);
+//     } catch (error) {
+//         res.status(500).json({ error: 'Error fetching quiz' });
+
+//     }
+// });
+
+
+router.get('/quizzes/:quiz_by', ensureAuthenticated, async (req, res) => {
     try {
-        const quiz = await Quiz.findById(req.params.id);
-        if (!quiz) {
-            return res.status(404).send();
+        const { quiz_by } = req.params;
+        console.log(quiz_by, 'User ID'); // Log the received user ID
+        const quizzes = await Quiz.find({ 'quiz_by': quiz_by }); // Find quizzes by user ID
+        if (!quizzes || quizzes.length === 0) {
+            return res.status(404).json({ error: 'No quizzes found for this user' });
         }
-        res.status(200).send(quiz);
+        res.status(200).send(quizzes);
     } catch (error) {
-        res.status(500).send(error);
+        console.error(error); // Log the error for debugging
+        res.status(500).json({ error: 'Error fetching quizzes' });
     }
 });
-
 
 
 // Update a quiz question
